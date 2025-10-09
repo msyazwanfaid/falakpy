@@ -27,17 +27,6 @@ pip install falakpy
 
 ```
 ## 💫 Quick Start Guide
-
-Excellent — that’s an important addition ✅ since **Skyfield** (and most astronomical libraries) use the convention:
-
-> East longitude = positive, West longitude = negative
-> North latitude = positive, South latitude = negative
-
-Here’s your **final, production-ready `README.md`** for PyPI — clean, standardized, and including that clarification in every relevant section.
-
----
-
-
 # 🕋 falakpy
 
 **falakpy** is a lightweight Python library for **Islamic Astronomy (Falak)** —  
