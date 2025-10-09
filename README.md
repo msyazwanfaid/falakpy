@@ -86,7 +86,7 @@ elevation = 40         # Elevation in meters
 timezone = 8           # UTC +8 for Malaysia
 year, month, day = 2025, 1, 28
 
-times = prayertime.daily(latitude, longitude, elevation, timezone, year, month, day)
+times = prayertime.singleday(latitude, longitude, elevation, timezone, year, month, day)
 
 print(times)
 ```
@@ -119,13 +119,13 @@ Isha     : 20:41
 #### Jakarta, Indonesia
 
 ```python
-prayertime.daily(-6.2088, 106.8456, 30, 7, 2025, 1, 28)
+prayertime.singleday(-6.2088, 106.8456, 30, 7, 2025, 1, 28)
 ```
 
 #### Mecca, Saudi Arabia
 
 ```python
-prayertime.daily(21.3891, 39.8579, 300, 3, 2025, 1, 28)
+prayertime.singleday(21.3891, 39.8579, 300, 3, 2025, 1, 28)
 ```
 
 #### London, UK
@@ -193,7 +193,7 @@ lunar.observedata(3, 101, 40.0, 8, 2025, 1, 28)
 
 **Dr. Muhamad Syazwan Faid**
 Universiti Tun Hussein Onn Malaysia (UTHM)
-
+mdsyazwan@uthm.edu.my
 ---
 
 ## ⚖️ License
