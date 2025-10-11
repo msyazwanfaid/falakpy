@@ -146,7 +146,13 @@ including sunset, moonset, lag time, moon age, altitude, and elongation angles.
 ```python
 from falakpy import lunar
 
-lunar.observedata(3, 101, 40.0, 8, 2025, 1, 28)
+latitude = 3.1390      # Kuala Lumpur latitude (°N → positive)
+longitude = 101.6869   # Kuala Lumpur longitude (°E → positive)
+elevation = 40         # Elevation in meters
+timezone = 8           # UTC +8 for Malaysia
+year, month, day = 2025, 1, 28
+
+times = lunar.observedata(latitude, longitude, elevation, timezone, year, month, day)
 ```
 
 ### Output:
