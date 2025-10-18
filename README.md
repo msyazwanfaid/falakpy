@@ -131,10 +131,142 @@ prayertime.singleday(21.3891, 39.8579, 300, 3, 2025, 1, 28)
 #### London, UK
 
 ```python
-prayertime.daily(51.5072, -0.1276, 25, 0, 2025, 1, 28)
+prayertime.singleday(51.5072, -0.1276, 25, 0, 2025, 1, 28)
 ```
 
 *(Use negative latitude for South, and negative longitude for West.)*
+
+---
+
+### 🕌 `prayertime.singleday()`
+
+```python
+def singleday(
+    lat, lon, ele, tz, y, m, d,
+    csv_filename="prayer_times.csv",
+    deg_subuh=-18,
+    deg_isha=-18,
+    asar_shadow_lenght=1
+)
+```
+
+**Defaults:**
+
+| Parameter            | Default              | Description                                 |
+| -------------------- | -------------------- | ------------------------------------------- |
+| `csv_filename`       | `"prayer_times.csv"` | Output file name                            |
+| `deg_subuh`          | `-18`                | Subuh twilight angle (° below horizon)      |
+| `deg_isha`           | `-18`                | Isyak twilight angle (° below horizon)      |
+| `asar_shadow_lenght` | `1`                  | Asar shadow ratio (1 = Shafi‘i, 2 = Hanafi) |
+
+---
+## 🕌 Multi-Day Prayer Time Calculation
+
+The `multiday()` function in **falakpy.prayertime** computes prayer times
+for **multiple consecutive days**, with flexible options to adjust
+Subuh and Isyak twilight angles as well as Asar shadow length (madhhab).
+
+---
+
+### ⚙️ Function Definition
+
+```python
+def multiday(
+    lat, lon, ele, tz, y, m, d_start, num_days,
+    csv_filename="prayer_times_multi.csv",
+    deg_subuh=-18,
+    deg_isha=-18,
+    asar_shadow_length=1
+)
+```
+
+---
+
+### 📘 Parameter Explanation
+
+| Parameter            | Description                                          | Example                    |
+| -------------------- | ---------------------------------------------------- | -------------------------- |
+| `lat`                | Latitude of observer (**°N positive, °S negative**)  | `3.1699`                   |
+| `lon`                | Longitude of observer (**°E positive, °W negative**) | `101.9384`                 |
+| `ele`                | Elevation above sea level (m)                        | `40`                       |
+| `tz`                 | Time zone (UTC offset)                               | `8` for Malaysia           |
+| `y, m, d_start`      | Start date (Gregorian)                               | `2025, 12, 21`             |
+| `num_days`           | Number of consecutive days to compute                | `5`                        |
+| `csv_filename`       | Output CSV file name                                 | `"prayer_times_multi.csv"` |
+| `deg_subuh`          | Sun altitude (° below horizon) for **Fajr/Subuh**    | `-18` (default)            |
+| `deg_isha`           | Sun altitude (° below horizon) for **Isyak**         | `-18` (default)            |
+| `asar_shadow_length` | Shadow ratio for **Asar** (1 = Shafi‘i, 2 = Hanafi)  | `1` (default)              |
+
+---
+
+### 🧭 Example 1 — Standard Multi-Day Schedule
+
+```python
+from falakpy import prayertime
+
+s = prayertime.multiday(3.1699, 101.9384, 40, 8, 2025, 12, 21, 5)
+print(s)
+```
+
+**Output:**
+
+```
+Date        Fajr   Sunrise   Dhuhr   Asr   Maghrib   Isha
+----------------------------------------------------------
+2025-12-21  05:53  07:11     13:26  16:46  19:28     20:41
+2025-12-22  05:53  07:12     13:26  16:47  19:29     20:41
+2025-12-23  05:54  07:12     13:26  16:47  19:29     20:41
+2025-12-24  05:54  07:12     13:27  16:48  19:30     20:42
+2025-12-25  05:54  07:12     13:27  16:48  19:30     20:42
+```
+
+---
+
+### 🌅 Example 2 — Custom Subuh and Isyak Angles
+
+```python
+from falakpy import prayertime
+
+s = prayertime.multiday(3.1699, 101.9384, 40, 8, 2025, 12, 21, 5,
+                        deg_subuh=-15, deg_isha=-15)
+print(s)
+```
+
+This setting shortens twilight time, suitable for regions near the equator
+or institutions using adjusted twilight depression angles.
+
+---
+
+### ☀️ Example 3 — Hanafi Asar Definition
+
+```python
+from falakpy import prayertime
+
+s = prayertime.multiday(3.1699, 101.9384, 40, 8, 2025, 12, 21, 5,
+                        asar_shadow_length=2)
+print(s)
+```
+
+Setting `asar_shadow_length=2` follows the **Hanafi** school,
+where Asar begins when an object’s shadow equals **twice** its length.
+
+---
+
+### 💾 CSV Output
+
+By default, a file named **`prayer_times_multi.csv`** will be saved in your working directory.
+It contains all daily times with date, formatted neatly for further analysis.
+
+---
+
+### 🧩 Summary of Defaults
+
+| Parameter            | Default                    | Description                            |
+| -------------------- | -------------------------- | -------------------------------------- |
+| `deg_subuh`          | `-18`                      | Astronomical twilight for Fajr/Subuh   |
+| `deg_isha`           | `-18`                      | Astronomical twilight for Isyak        |
+| `asar_shadow_length` | `1`                        | Shadow ratio (1 = Shafi‘i, 2 = Hanafi) |
+| `csv_filename`       | `"prayer_times_multi.csv"` | Output file name                       |
 
 ---
 
