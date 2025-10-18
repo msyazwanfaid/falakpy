@@ -43,7 +43,32 @@ pip install falakpy
 
 ---
 
-## 🧭 Example 1: Qibla Direction
+Perfect 👍 Here’s a **clean and fully formatted GitHub-ready section** for your
+**Qibla module** (`qibla.direction`, `dailyqibla`, and `multiday_qibla`) — consistent with your current README style.
+
+You can copy-paste this directly into your [`README.md`](https://github.com/msyazwanfaid/falakpy/blob/main/README.md):
+
+---
+
+# 🕋 Qibla Direction 
+
+The **`falakpy.qibla`** module calculates the **Qibla direction** (great-circle azimuth toward Kaabah)
+and identifies when the **Sun’s azimuth** aligns with or opposes the Qibla direction —
+useful for **Qibla verification** via sunlight alignment.
+
+---
+
+### ⚙️ Function Overview
+
+| Function                                                                                    | Description                                                                                          |
+| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `direction(lat, lon)`                                                                       | Computes Qibla direction (in degrees & DMS) from given coordinates.                                  |
+| `dailyqibla(lat, lon, ele, y, m, d, tz, tolerance)`                                         | Finds time intervals when the Sun’s azimuth matches (or opposes) the Qibla direction on a given day. |
+| `multiday_qibla(lat, lon, ele, timezone, y, m, d_start, num_days, tolerance, csv_filename)` | Runs multi-day simulation of solar alignment with Qibla direction.                                   |
+
+---
+
+### 🧭 Example 1 — Basic Qibla Direction
 
 ```python
 from falakpy import qibla
@@ -57,25 +82,99 @@ print("Qibla (DMS):", s.degree)
 print("Qibla (Decimal):", s.decimal)
 ```
 
-### Output:
+**Output**
 
 ```
 Qibla (DMS): 292° 60′ 0″
 Qibla (Decimal): 292.7056910716602
 ```
 
-### 📘 Variable Explanation
+---
 
-| Variable    | Meaning                                                     | Example                        |
-| ----------- | ----------------------------------------------------------- | ------------------------------ |
-| `latitude`  | Observer’s latitude (°N or °S) — **use negative for South** | `3.1390` (Kuala Lumpur)        |
-| `longitude` | Observer’s longitude (°E or °W) — **use negative for West** | `101.6869` (East of Greenwich) |
+### 🌞 Example 2 — Daily Qibla–Sun Alignment
 
-📘 *This function calculates the great-circle direction to the Kaabah (21.4225° N, 39.8262° E).*
+Find when the Sun’s azimuth is parallel or opposite to the Qibla direction on a specific date.
+
+```python
+from falakpy import qibla
+
+z, y = qibla.dailyqibla(2.1484, 102.7308, 50.0, 2025, 10, 14, 8, 5)
+
+print(y)   # Opposite alignment
+print(z)   # Qibla alignment
+```
+
+**Output**
+
+```
+[OPPOSITE (Qibla - 180°)] Sun azimuth ~ 112.84° ±5° on 2025-10-14.
+  • Entry ~ 10:42:59 | Exit ~ 11:35:37 
+
+[QIBLA] No Sun azimuth within 292.84° ±5° on 2025-10-14.
+```
+
+☀️ *This shows when sunlight falls directly opposite the Qibla direction (known as the anti-Qibla event).*
 
 ---
 
-## 🕌 Example 2: Prayer Time Calculation
+### 📅 Example 3 — Multi-Day Qibla Windows
+
+Run a **5-day analysis** to find daily solar Qibla alignments and their times.
+
+```python
+from falakpy import qibla
+
+qibla.multiday_qibla(
+    lat=3.1390, lon=101.6869, ele=40,
+    timezone=8, y=2025, m=10, d_start=20,
+    num_days=5, tolerance=2.0,
+    csv_filename="qibla_windows_5days.csv"
+)
+```
+
+**Output (Excerpt)**
+
+```
+=== 2025-10-20 ===
+[QIBLA] No Sun azimuth within 292.54° ±2.0° on 2025-10-20.
+[OPPOSITE (Qibla - 180°)] Sun azimuth ~ 112.54° ±2.0° on 2025-10-20.
+  • Entry ~ 10:29:09 | Exit ~ 10:56:47  
+
+=== 2025-10-21 ===
+[QIBLA] No Sun azimuth within 292.54° ±2.0° on 2025-10-21.
+[OPPOSITE (Qibla - 180°)] Sun azimuth ~ 112.54° ±2.0° on 2025-10-21.
+  • Entry ~ 10:24:31 | Exit ~ 10:53:07  
+
+✅ Saved multi-day Qibla windows to qibla_windows_5days.csv
+```
+
+---
+
+### 📘 Parameter Explanation
+
+| Parameter       | Meaning                                    | Example                     |
+| --------------- | ------------------------------------------ | --------------------------- |
+| `lat`           | Latitude (°N → positive, °S → negative)    | `3.1390`                    |
+| `lon`           | Longitude (°E → positive, °W → negative)   | `101.6869`                  |
+| `ele`           | Elevation above sea level (m)              | `40`                        |
+| `timezone`      | UTC offset                                 | `8` for Malaysia            |
+| `y, m, d_start` | Starting Gregorian date                    | `2025, 10, 20`              |
+| `num_days`      | Consecutive days to calculate              | `5`                         |
+| `tolerance`     | Acceptable range (±°) around Qibla azimuth | `2.0`                       |
+| `csv_filename`  | Output CSV file name                       | `"qibla_windows_5days.csv"` |
+
+---
+
+### 🧩 Summary
+
+| Function           | Description                                                            |
+| ------------------ | ---------------------------------------------------------------------- |
+| `direction()`      | Returns Qibla azimuth in decimal and DMS format.                       |
+| `dailyqibla()`     | Computes solar alignment events for a single day.                      |
+| `multiday_qibla()` | Generates a table of Qibla/anti-Qibla solar events over multiple days. |
+
+---
+# 🕌 Prayer Time Calculation
 
 ```python
 from falakpy import prayertime
@@ -270,7 +369,7 @@ It contains all daily times with date, formatted neatly for further analysis.
 
 ---
 
-## 🌙 Example 3: Lunar Observation Data
+# 🌙 Lunar Observation Data
 
 The **`lunar`** module provides parameters for **hilal (crescent moon) visibility**,
 including sunset, moonset, lag time, moon age, altitude, and elongation angles.
