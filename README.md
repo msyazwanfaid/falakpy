@@ -259,7 +259,7 @@ def singleday(
 | `asar_shadow_lenght` | `1`                  | Asar shadow ratio (1 = Shafi‘i, 2 = Hanafi) |
 
 ---
-## 🕌 Multi-Day Prayer Time Calculation
+### 🕌 Multi-Day Prayer Time Calculation
 
 The `multiday()` function in **falakpy.prayertime** computes prayer times
 for **multiple consecutive days**, with flexible options to adjust
