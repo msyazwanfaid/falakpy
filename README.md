@@ -2,7 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/falakpy.svg)](https://pypi.org/project/falakpy/)
 [![Python Version](https://img.shields.io/pypi/pyversions/falakpy.svg)](https://pypi.org/project/falakpy/)
-[![License](https://img.shields.io/github/license/syazwanfaid/falakpy.svg)](https://github.com/syazwanfaid/falakpy/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/syazwanfaid/falakpy.svg)](https://github.com/msyazwanfaid/falakpy/blob/main/LICENSE)
 [![Downloads](https://static.pepy.tech/badge/falakpy)](https://pepy.tech/project/falakpy)
 
 
