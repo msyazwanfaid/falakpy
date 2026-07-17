@@ -48,13 +48,6 @@ pip install falakpy
 
 ---
 
-Perfect 👍 Here’s a **clean and fully formatted GitHub-ready section** for your
-**Qibla module** (`qibla.direction`, `dailyqibla`, and `multiday_qibla`) — consistent with your current README style.
-
-You can copy-paste this directly into your [`README.md`](https://github.com/msyazwanfaid/falakpy/blob/main/README.md):
-
----
-
 # 🕋 Qibla Direction 
 
 The **`falakpy.qibla`** module calculates the **Qibla direction** (great-circle azimuth toward Kaabah)
@@ -70,7 +63,7 @@ useful for **Qibla verification** via sunlight alignment.
 | `direction(lat, lon)`                                                                       | Computes Qibla direction (in degrees & DMS) from given coordinates.                                  |
 | `dailyqibla(lat, lon, ele, y, m, d, tz, tolerance)`                                         | Finds time intervals when the Sun’s azimuth matches (or opposes) the Qibla direction on a given day. |
 | `multiday_qibla(lat, lon, ele, timezone, y, m, d_start, num_days, tolerance, csv_filename)` | Runs multi-day simulation of solar alignment with Qibla direction.                                   |
-
+| `qiblacompass(latitude, longitude, year, month, day, timezone, time_hour, time_minute)`     | Generates a polar plot visualizing Qibla direction, Sun azimuth, and shadow azimuth.                 |
 ---
 
 ### 🧭 Example 1 — Basic Qibla Direction
@@ -152,7 +145,24 @@ qibla.multiday_qibla(
 
 ✅ Saved multi-day Qibla windows to qibla_windows_5days.csv
 ```
+### 🧭 Example 4 — Visual Qibla Compass (Sun & Shadow)
 
+Generate a polar plot (compass) to visually verify the Qibla direction using the Sun's current azimuth and the shadow it casts on a vertical object. 
+
+```python
+from falakpy import qibla
+
+# Parameters: Lat, Lon, Year, Month, Day, Timezone, Hour, Minute
+qibla.qiblacompass(
+    latitude=3.1390, 
+    longitude=101.6869, 
+    year=2025, 
+    month=10, 
+    day=14, 
+    timezone=8, 
+    time_hour=10, 
+    time_minute=42
+)
 ---
 
 ### 📘 Parameter Explanation
