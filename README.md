@@ -398,7 +398,7 @@ elevation = 40         # Elevation in meters
 timezone = 8           # UTC +8 for Malaysia
 year, month, day = 2025, 1, 28
 
-times = lunar.observedata(latitude, longitude, elevation, timezone, year, month, day)
+times = lunar.tabeldata(latitude, longitude, elevation, timezone, year, month, day)
 ```
 
 ### Output:
