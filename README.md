@@ -411,6 +411,115 @@ times = lunar.tabeldata(latitude, longitude, elevation, timezone, year, month, d
 +------------+----------+----------+----------+----------+----------+----------+----------+----------+
 ```
 
+# 🌘 Single-Date Hilal Observation Data
+
+The **`observedata`** function computes detailed **hilal (crescent moon) visibility parameters**
+for a single date and location, including sunset, moonset, lag time, moon age, altitude,
+elongation, and crescent width — using precise astronomical calculations via Skyfield.
+
+```python
+from falakpy import lunar
+
+latitude = 3.1390      # Kuala Lumpur latitude (°N → positive)
+longitude = 101.6869   # Kuala Lumpur longitude (°E → positive)
+elevation = 40          # Elevation in meters
+timezone = 8            # UTC +8 for Malaysia
+year, month, day = 2026, 7, 17
+
+result = lunar.observedata(latitude, longitude, elevation, timezone, year, month, day)
+```
+
+### Raw Output
+
+`observedata()` returns a **plain tuple** of 10 values, in a fixed order:
+
+```
+('19:28:45', '22:11:51', datetime.timedelta(seconds=9786, microseconds=896487),
+ 73.75224318355322, 38.225342043865936, 12.799197207168163,
+ 39.26100361950058, 40.996077346868155, 3.9693035958188423, 238.15821574913053)
+```
+
+---
+
+### 📘 Variable Explanation
+
+| Variable       | Meaning                                             | Example                       |
+| -------------- | ---------------------------------------------------- | ------------------------------ |
+| `latitude`     | Observer's latitude (°N or °S) — **S = negative**    | `3.1390` (North = positive)    |
+| `longitude`    | Observer's longitude (°E or °W) — **W = negative**   | `101.6869` (East = positive)   |
+| `elevation`    | Height above sea level (m)                            | `40`                            |
+| `timezone`     | UTC offset                                             | `8` for Malaysia                |
+| `year, month, day` | Gregorian date of observation                      | `2026, 7, 17`                   |
+
+---
+
+### 📗 Return Value Reference
+
+Since the raw output is a plain tuple, use the table below to identify each field by its
+position, or use the `HilalObservation` wrapper (see below) for named access.
+
+| # | Name            | Type              | Unit        | Description                                                        |
+| - | --------------- | ----------------- | ----------- | -------------------------------------------------------------------- |
+| 0 | `sunset`        | `str`             | `HH:MM:SS`  | Local sunset time (upper-limb, refraction-corrected)                 |
+| 1 | `moonset`       | `str`             | `HH:MM:SS`  | Local moonset time, or `"—"` if the moon doesn't set that day          |
+| 2 | `lag_time`      | `datetime.timedelta` | —        | Moonset − sunset. Use `.total_seconds()/60` for minutes                |
+| 3 | `moon_age`      | `float`           | hours       | Time since last conjunction (new moon) before sunset                  |
+| 4 | `moon_alt`      | `float`           | degrees     | Moon's altitude at sunset                                              |
+| 5 | `daz`           | `float`           | degrees     | Relative azimuth (DAZ) between sun and moon                            |
+| 6 | `arcv`          | `float`           | degrees     | Arc of Vision — altitude difference between moon and sun                |
+| 7 | `arcl`          | `float`           | degrees     | Arc of Light — angular separation (elongation) between sun and moon      |
+| 8 | `width_arcmin`  | `float`           | arcminutes  | Crescent width                                                          |
+| 9 | `width_arcsec`  | `float`           | arcseconds  | Crescent width (same value, finer unit)                                  |
+
+---
+
+### 🏷️ Named Access with `HilalObservation`
+
+For readability, wrap the raw tuple in a `NamedTuple` — this is purely a usage pattern and
+**requires no changes to `observedata()` itself**:
+
+```python
+from typing import NamedTuple
+
+class HilalObservation(NamedTuple):
+    sunset: str            # HH:MM:SS local sunset time
+    moonset: str           # HH:MM:SS local moonset time, or "—" if none
+    lag_time: object        # datetime.timedelta, moonset - sunset
+    moon_age: float          # hours since last conjunction
+    moon_alt: float          # degrees, moon altitude at sunset
+    daz: float                # degrees, relative azimuth (DAZ)
+    arcv: float                # degrees, Arc of Vision
+    arcl: float                 # degrees, Arc of Light (elongation)
+    width_arcmin: float          # arcminutes, crescent width
+    width_arcsec: float           # arcseconds, crescent width
+```
+
+```python
+from falakpy import lunar
+
+raw = lunar.observedata(3.1390, 101.6869, 40, 8, 2026, 7, 17)
+result = HilalObservation(*raw)
+
+print(result.sunset)         # '19:28:45'
+print(result.arcl)           # 41.00...
+print(result.width_arcmin)   # 3.97...
+
+# Positional unpacking still works exactly as with the raw tuple:
+sunset, moonset, lag_time, moon_age, moon_alt, daz, arcv, arcl, width_arcm, width_arcs = result
+```
+
+---
+
+### 🪶 Interpretation
+
+* **Positive `moon_alt`** → Moon above horizon at sunset → *potentially visible*
+* **Positive `arcv`** → Moon sets/sits higher than the sun → improves visibility odds
+* **Higher `arcl` (elongation) & `width_arcmin`** → Better chance of crescent visibility
+* `moonset` and `lag_time` will be `"—"` on dates where the moon does not set locally —
+  check for this before parsing as a time
+* `arcl` and `width_arcmin` are the two parameters most visibility criteria (e.g. MABIMS,
+  Danjon limit) threshold against
+
 from falakpy import lunar
 
 # Generate a map for Eid al-Fitr observation (e.g., 30 March 2025)
@@ -455,15 +564,7 @@ Global Visibility MAP
 | `timezone`         | UTC offset                                         | `8` for Malaysia             |
 | `year, month, day` | Gregorian date of observation                      | `2025, 1, 28`                |
 
----
 
-### 🪶 Interpretation
-
-* **Positive MoonAlt** → Moon above horizon → *possible to observe*
-* **Negative MoonAlt** → Moon set before sunset → *not visible*
-* **Higher ArcL & ArcV** → Better visibility chance for crescent
-
----
 
 ## 📘 Module Summary
 
