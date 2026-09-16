@@ -11,9 +11,6 @@
 It’s designed for students, researchers, and enthusiasts who wish to integrate classical *Falak* knowledge with modern astronomical computation via [Skyfield](https://rhodesmill.org/skyfield/).
 
 
-⚠️ IMPORTANT NOTICE: ONLY USE VERSION 0.1.5 ⚠️
-Please ensure you install version 0.1.5 exclusively. The latest release (1.0.3) currently contains bugs that require amendment. The installation instructions below have been updated to reflect this.
-
 ---
 
 ## 🚀 Installation
@@ -21,7 +18,7 @@ Please ensure you install version 0.1.5 exclusively. The latest release (1.0.3) 
 Install directly from PyPI:
 
 ```bash
-pip install falakpy==0.1.5
+pip install falakpy
 
 
 | Module               | Description                                                                                   |
