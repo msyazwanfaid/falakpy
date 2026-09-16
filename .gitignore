@@ -1,10 +1,10 @@
 ﻿__pycache__/
-*.pyc
-build/
+*.py[cod]
 dist/
+build/
 *.egg-info/
-.ipynb_checkpoints/
-*.csv
-*.html
-*.png
+src/*.egg-info/
 *.bsp
+*.csv
+.ipynb_checkpoints/
+.vscode/

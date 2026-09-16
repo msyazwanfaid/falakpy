@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "falakpy"
-version = "0.1.9"
+version = "1.2.0"
 description = "A Python toolkit for Islamic Astronomy (Ilm al-Falak): Qibla, Prayer Times, and Lunar Observation."
 readme = "readme.md"
 requires-python = ">=3.9"
