@@ -1,4 +1,3 @@
-
 # 🌙 falakpy — Islamic Astronomy Toolkit for Python
 
 [![PyPI version](https://img.shields.io/pypi/v/falakpy.svg)](https://pypi.org/project/falakpy/)
@@ -27,7 +26,7 @@ pip install falakpy pandas
 | --- | --- |
 | `falakpy.qibla` | Compute Qibla direction, solar alignment windows (anti-Qibla), and generate polar compass plots. |
 | `falakpy.prayertime` | Calculate daily and multi-day prayer schedules with customizable twilight angles and madhhab rules. |
-| `falakpy.lunar` | Determine sunset, moonset, lag time, topocentric crescent parameters, criterion benchmarking, global visibility curves, and physical contrast modeling. |
+| `falakpy.lunar` | Determine sunset, moonset, lag time, topocentric crescent parameters, criterion benchmarking, global visibility curves, physical contrast modeling, multi-year sunset simulation, and hilal position diagrams. |
 
 ---
 
@@ -397,6 +396,8 @@ The **`lunar`** module provides comprehensive parameters for **hilal (crescent m
 | `criteriavisibility` | `criteriavisibility(lat, lon, ele, tz, year, m, d)` | Benchmarks observation data against major crescent visibility criteria (MABIMS, Yallop, Odeh) and exports to CSV. |
 | `globalvisibilitymap` | `globalvisibilitymap(year, month, day, LAT_RES, LON_RES)` | Renders a terminal-based global ASCII map illustrating zones of crescent visibility and first sighting point. |
 | `visibilitycontrast` | `visibilitycontrast(lat, long, year, month, day, ele, tz, temperature_celcius, relative_humidity, light_pollution_magsec, location)` | Simulates minute-by-minute physical contrast between lunar crescent and twilight sky from sunset to moonset. |
+| `moonpositionanalysis` | `moonpositionanalysis(year, month, day, tz, lat, long, ele, IMAGE_PATH, horizon_y_ratio, horizon_alt_target, y_max, img_center_az, img_fov, duration_years)` | Simulates Hijri months over one or more years and plots the Sun and Moon at sunset on each 29th against a horizon image, with MABIMS 2021 pass rates. Returns a `PIL.Image`. |
+| `plot_hilal_visibility` | `plot_hilal_visibility(config, crescent_img_path, logo_path, logo_zoom, logo_alpha, background_image_path, horizon_y_ratio, sky_palette)` | Draws a single-date Sun–Moon position diagram at sunset with a rotated crescent, altitude and elongation criteria, and an info box. Returns a `PIL.Image`. |
 
 ---
 
@@ -794,6 +795,224 @@ if plot_ancient:
     plot_ancient.save("luoyang_tang_dynasty_crescent.png")
 
 ```
+
+---
+
+### 🌅 Method 6: Multi-Year Sunset Simulation (`moonpositionanalysis`)
+
+The **`moonpositionanalysis`** function simulates a run of Hijri months and plots where the **Sun** and the **Moon** sit at sunset on every 29th of the month, drawn over a horizon backdrop. It shows at a glance how often the new Moon clears the **MABIMS 2021** thresholds (Moon altitude > 3° and elongation > 6.4°) across one or more years.
+
+How it works:
+
+1. Steps through `365 × duration_years` days while tracking the Hijri date.
+2. On each 29th, computes the Sun and Moon topocentric position at sunset (elongation, altitudes, azimuths).
+3. If the Moon passes the criteria, the next day becomes day 1 of the new month; otherwise the month is extended to 30 days.
+4. Plots every 29th-day sunset (Sun and Moon markers joined by a dotted line) and reports the percentage of evenings above and below the criteria.
+
+#### ⚙️ Function Signature
+
+```python
+def moonpositionanalysis(
+    year, month, day, tz, lat, long, ele,
+    IMAGE_PATH=None,
+    horizon_y_ratio=0.50,
+    horizon_alt_target=-0.83,
+    y_max=25,
+    img_center_az=270,
+    img_fov=65,
+    duration_years=1
+)
+
+```
+
+#### 📘 Parameter Breakdown
+
+| Parameter | Type | Unit / Format | Description | Default |
+| --- | --- | --- | --- | --- |
+| `year, month, day` | `int` | Date | Gregorian start date of the simulation | — |
+| `tz` | `float` / `int` | Hours | UTC offset (accepted but not currently used in the calculation) | — |
+| `lat` | `float` | Degrees | Observer latitude (°N positive, °S negative) | — |
+| `long` | `float` | Degrees | Observer longitude (°E positive, °W negative) | — |
+| `ele` | `float` | Meters | Elevation above sea level | — |
+| `IMAGE_PATH` | `str` / `PIL.Image` / `ndarray` / `None` | Path, URL or image | Background horizon photo. If `None` (or it fails to load), a simulated sunset gradient is drawn | `None` |
+| `horizon_y_ratio` | `float` | 0.0 – 1.0 | Fraction from the bottom of the image where the sea horizon sits | `0.50` |
+| `horizon_alt_target` | `float` | Degrees | Altitude at which the image horizon line is pinned | `-0.83` |
+| `y_max` | `float` | Degrees | Upper altitude limit of the plot | `25` |
+| `img_center_az` | `float` | Degrees | Azimuth at the centre of the image (270° = due West) | `270` |
+| `img_fov` | `float` | Degrees | Horizontal field of view covered by the image | `65` |
+| `duration_years` | `int` | Years | Number of years to simulate (1 to 19) | `1` |
+
+> ⚠️ **Note:** In the current version the Hijri calendar is seeded at **22 Rejab 1448** and is not derived from `year, month, day`. Choose a Gregorian start date that matches that Hijri date (around the end of December 2026 — please verify against your reference calendar), otherwise the 29th-of-month sunsets will not line up with real Hijri months.
+
+#### 🧭 Example 1 — One-Year Simulation (Gradient Background)
+
+```python
+from falakpy import lunar
+
+img = lunar.moonpositionanalysis(
+    year=2026, month=12, day=31,   # Gregorian start (≈ 22 Rejab 1448)
+    tz=8,
+    lat=3.1390, long=101.6869, ele=40,
+    duration_years=1
+)
+
+img.show()
+img.save("moon_position_simulation.png")
+
+```
+
+#### 🖼️ Example 2 — Custom Horizon Photo, Two Years
+
+```python
+from falakpy import lunar
+
+img = lunar.moonpositionanalysis(
+    2026, 12, 31, 8, 2.1484, 102.7308, 50,
+    IMAGE_PATH="sea_horizon.jpg",   # local path, URL, PIL image or NumPy array
+    horizon_y_ratio=0.45,           # sea horizon sits 45% up from the bottom
+    img_center_az=270,
+    img_fov=65,
+    duration_years=2
+)
+
+img.save("moon_position_2years.png")
+
+```
+
+#### 📤 Function Outputs & Side Effects
+
+* **Console Logging:** Shows a `tqdm` progress bar (*Simulating Calendar*) while the calendar is generated.
+* **Return Value:** Returns a `PIL.Image` (PNG, 120 dpi) of the horizon simulation.
+* **Reading the plot:**
+  * 🟠 **Orange circles** — Sun at sunset (near the −0.83° horizon line).
+  * 🟢 **Green circles** — Moon passes the criteria (altitude > 3° and elongation > 6.4°).
+  * ⚪ **Grey circles** — Moon below the criteria.
+  * The legend reports the percentage of 29th-day evenings above and below the criteria.
+
+#### 📦 Dependencies
+
+Requires `numpy`, `pandas`, `matplotlib`, `Pillow` and `tqdm` in addition to Skyfield.
+
+---
+
+### 🖼️ Method 7: Single-Date Hilal Position Diagram (`plot_hilal_visibility`)
+
+The **`plot_hilal_visibility`** function draws a publication-style diagram of the **Moon–Sun position at sunset** for one date and location. It shows the Sun, the rotated crescent image, the altitude and elongation criteria, and an information box with the key hilal parameters.
+
+#### ⚙️ Function Signature
+
+```python
+def plot_hilal_visibility(
+    config,
+    crescent_img_path=None,
+    logo_path=None,
+    logo_zoom=0.25,
+    logo_alpha=0.20,
+    background_image_path=None,
+    horizon_y_ratio=0.50,
+    sky_palette='twilight'
+)
+
+```
+
+#### 📘 The `config` Dictionary
+
+| Key | Type | Required | Description | Default |
+| --- | --- | --- | --- | --- |
+| `lat` | `float` | ✅ | Observer latitude (°N positive, °S negative) | — |
+| `lon` | `float` | ✅ | Observer longitude (°E positive, °W negative) | — |
+| `year`, `month`, `day` | `int` | ✅ | Gregorian observation date | — |
+| `elevation_m` | `float` | ❌ | Elevation above sea level (m) | `0` |
+| `tz` | `float` / `int` | ❌ | UTC offset (hours) | `8` |
+| `kriteria_altitude` | `float` | ❌ | Moon altitude criterion (°) drawn as a horizontal line | `3.0` |
+| `kriteria_elongasi` | `float` | ❌ | Elongation criterion (°) drawn as an arc around the Sun | `6.4` |
+| `lokasi` | `str` | ❌ | Site label used in the plot title | `"Lokasi Cerapan"` |
+
+#### 📘 Styling Parameters
+
+| Parameter | Type | Description | Default |
+| --- | --- | --- | --- |
+| `crescent_img_path` | `str` / `PIL.Image` / `ndarray` / `None` | Crescent image (rotated to match the Sun–Moon direction). `None` uses the default from the falakpy GitHub repository | `None` |
+| `logo_path` | `str` / `PIL.Image` / `ndarray` / `None` | Watermark logo at the centre of the canvas. `None` uses the default falakpy logo | `None` |
+| `logo_zoom` | `float` | Logo scale factor | `0.25` |
+| `logo_alpha` | `float` | Logo opacity (0 – 1) | `0.20` |
+| `background_image_path` | `str` / `PIL.Image` / `ndarray` / `None` | Sea-horizon background. `None` uses the default from the falakpy GitHub repository | `None` |
+| `horizon_y_ratio` | `float` | Fraction from the bottom of the background image where the horizon sits (0.0 – 1.0) | `0.50` |
+| `sky_palette` | `str` / `list` | Gradient used when no background image loads: `'twilight'`, `'sunset_warm'`, `'deep_night'`, `'clear_blue'`, or a custom list of colour codes | `'twilight'` |
+
+> 🌐 **Note:** Images passed as `None` are downloaded from the falakpy GitHub repository, so an internet connection is needed. If a download fails, a warning is printed and the plot falls back to a gradient background (or a gold marker in place of the crescent image).
+
+#### 🧭 Example 1 — Basic Hilal Diagram (MABIMS 2021)
+
+```python
+from falakpy import lunar
+
+config = {
+    "lokasi": "Kuala Lumpur",
+    "lat": 3.1390,
+    "lon": 101.6869,
+    "elevation_m": 40,
+    "tz": 8,
+    "year": 2026,
+    "month": 3,
+    "day": 19,
+}
+
+img = lunar.plot_hilal_visibility(config)
+
+img.show()
+img.save("hilal_position_kl.png")
+
+```
+
+#### 🎨 Example 2 — Custom Criteria, Palette and Logo
+
+```python
+from falakpy import lunar
+
+config = {
+    "lokasi": "Kuala Lumpur",
+    "lat": 3.1390,
+    "lon": 101.6869,
+    "elevation_m": 40,
+    "tz": 8,
+    "year": 2026,
+    "month": 3,
+    "day": 19,
+    "kriteria_altitude": 5.0,     # Istanbul 2015: Moon altitude ≥ 5°
+    "kriteria_elongasi": 8.0,     # Istanbul 2015: elongation ≥ 8°
+}
+
+img = lunar.plot_hilal_visibility(
+    config,
+    logo_path="my_logo.png",
+    logo_alpha=0.15,
+    background_image_path=None,      # use the default horizon photo
+    sky_palette="sunset_warm"        # used only if the background cannot be loaded
+)
+
+img.save("hilal_position_istanbul2015.png")
+
+```
+
+#### 📤 Function Outputs & Side Effects
+
+* **Return Value:** Returns a `PIL.Image` (PNG, 200 dpi). No CSV is written.
+* **Reading the plot:**
+  * 🔴 **Red circle** — Sun at sunset.
+  * 🌙 **Crescent image** — Moon position, rotated along the Sun–Moon direction.
+  * **Black line** — true horizon (0°).
+  * **Blue dashed arc** — elongation criterion (radius = `kriteria_elongasi`, centred on the Sun).
+  * **Red dashed line** — altitude criterion (`kriteria_altitude`).
+  * **Info box** — Moon altitude, Sun altitude, ARCV (ΔAlt), DAZ (ΔAz) and elongation (ARCL).
+* **Visible region:** The Moon meets both criteria when it lies **above the altitude line** and **outside the elongation arc**.
+* **Language:** Axis labels and legend text are in Malay (*Azimut*, *Altitud*, *Elongasi*, *Matahari*).
+
+> ℹ️ **Note:** Here ARCV and DAZ are **signed** differences (Moon − Sun), whereas `observedata` reports absolute values. Sunset comes from Skyfield's standard sunrise/sunset definition and does not apply the elevation dip correction used in `observedata`, so times can differ by a few seconds.
+
+#### 📦 Dependencies
+
+Requires `numpy`, `matplotlib`, `scipy`, `Pillow` and network access for the default images, in addition to Skyfield.
 
 ---
 
