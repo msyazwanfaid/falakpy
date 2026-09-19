@@ -1,4 +1,4 @@
-```markdown
+
 # 🌙 falakpy — Islamic Astronomy Toolkit for Python
 
 [![PyPI version](https://img.shields.io/pypi/v/falakpy.svg)](https://pypi.org/project/falakpy/)
