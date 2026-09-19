@@ -2,7 +2,7 @@
 # 🌙 falakpy — Islamic Astronomy Toolkit for Python
 
 [![PyPI version](https://img.shields.io/pypi/v/falakpy.svg)](https://pypi.org/project/falakpy/)
-[![Python Version](https://img.shields.io/pyversions/falakpy.svg)](https://pypi.org/project/falakpy/)
+[![Python Version](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://pypi.org/project/falakpy/)
 [![License](https://img.shields.io/github/license/msyazwanfaid/falakpy.svg)](https://github.com/msyazwanfaid/falakpy/blob/main/LICENSE)
 [![Downloads](https://static.pepy.tech/badge/falakpy)](https://pepy.tech/project/falakpy)
 
