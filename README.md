@@ -40,10 +40,10 @@ The **`falakpy.qibla`** module calculates the **Qibla direction** (great-circle 
 
 | Function | Signature | Description |
 | --- | --- | --- |
-| `direction` | `direction(lat, lon)` | Computes the great-circle Qibla azimuth in degrees and DMS format from coordinates. |
-| `dailyqibla` | `dailyqibla(lat, lon, ele, y, m, d, tz, tolerance)` | Finds time intervals when the Sun aligns with or opposes the Qibla azimuth on a single day. |
-| `multiday_qibla` | `multiday_qibla(lat, lon, ele, timezone, y, m, d_start, num_days, tolerance, csv_filename)` | Runs multi-day simulations of solar alignment windows and exports results to CSV. |
-| `qiblacompass` | `qiblacompass(latitude, longitude, year, month, day, timezone, time_hour, time_minute)` | Generates a polar plot visualizing Qibla direction, current Sun azimuth, and cast shadow azimuth. |
+| `direction` | `direction(lat, long)` | Computes the great-circle Qibla azimuth and returns a `QiblaDirection` with `.decimal` (float, degrees) and `.degree` (DMS string). |
+| `dailyqibla` | `dailyqibla(lat, long, ele, year, month, day, timezone, tolerance)` | Finds time intervals when the Sun aligns with or opposes the Qibla azimuth on a single day. Returns `(qibla_text, opposite_text)`. |
+| `multiday_qibla` | `multiday_qibla(lat, lon, ele, timezone, y, m, d_start, num_days, tolerance, csv_filename=None)` | Runs `dailyqibla` over consecutive days, prints a summary, optionally exports the windows to CSV, and returns a list of per-day dicts. |
+| `qiblacompass` | `qiblacompass(latitude, longitude, year, month, day, timezone, time_hour, time_minute)` | Generates a polar plot visualizing Qibla direction, current Sun azimuth, and (while the Sun is above the horizon) the cast shadow azimuth. |
 
 ---
 
@@ -65,10 +65,12 @@ print("Qibla (Decimal):", s.decimal)
 **Output:**
 
 ```text
-Qibla (DMS): 292° 60′ 0″
-Qibla (Decimal): 292.7056910716602
+Qibla (DMS): 292° 32′ 16″
+Qibla (Decimal): 292.53770818783477
 
 ```
+
+`direction()` returns a frozen `QiblaDirection` dataclass. `.decimal` is the azimuth in degrees, clockwise from true North (`0 ≤ value < 360`), and `.degree` is the same value as a `D° M′ S″` string. The azimuth is the great-circle initial bearing to the Kaabah (21.4225°N, 39.8262°E), and a `ValueError` is raised if the location coincides with the Kaabah.
 
 ---
 
@@ -97,6 +99,8 @@ print(z)   # Qibla alignment
 ```
 
 ☀️ *This shows when sunlight falls directly opposite the Qibla direction (known as the anti-Qibla event).*
+
+> `dailyqibla` returns two formatted strings, `(qibla_text, opposite_text)`, which the example unpacks as `z, y`. Only times when the Sun is above the horizon (altitude ≥ 0°) are counted. Its arguments are `lat, long, ele, year, month, day, timezone, tolerance`; the example passes them by position.
 
 ---
 
@@ -133,6 +137,17 @@ qibla.multiday_qibla(
 
 ```
 
+`multiday_qibla` also returns a list with one dict per day, `{"date", "qibla", "opposite"}`, where the last two are the text blocks returned by `dailyqibla`. `csv_filename` is optional (default `None`, so no file is written). The CSV has the columns `Date, Label, Entry (Local), Exit (Local)`, with `-` on days when no alignment window occurs:
+
+```text
+Date,Label,Entry (Local),Exit (Local)
+2025-10-20,QIBLA,-,-
+2025-10-20,OPPOSITE,10:29:09,10:56:47
+2025-10-21,QIBLA,-,-
+2025-10-21,OPPOSITE,10:24:31,10:53:07
+
+```
+
 ---
 
 ### 🧭 Example 4 — Visual Qibla Compass (Sun & Shadow)
@@ -156,6 +171,8 @@ qibla.qiblacompass(
 
 ```
 
+The plot shows the Qibla azimuth (blue, dashed), the Sun azimuth (orange) and, while the Sun is above the horizon, the shadow azimuth (grey, dotted; Sun azimuth + 180°). When the shadow line lies on the Qibla line, the shadow points toward the Qibla. `qiblacompass` displays the plot and returns `None`; the observer is placed at sea level, and `timezone` is the UTC offset used to convert the local clock time.
+
 ---
 
 ### 📘 Qibla Parameter Explanation
@@ -169,7 +186,9 @@ qibla.qiblacompass(
 | `y, m, d_start` | Starting Gregorian date | `2025, 10, 20` |
 | `num_days` | Consecutive days to calculate | `5` |
 | `tolerance` | Acceptable range (±°) around Qibla azimuth | `2.0` |
-| `csv_filename` | Output CSV file name | `"qibla_windows_5days.csv"` |
+| `csv_filename` | Output CSV file name (optional; default `None` writes no file) | `"qibla_windows_5days.csv"` |
+
+The table above describes `multiday_qibla`. `dailyqibla` names its longitude `long`, its date arguments `year, month, day`, and its UTC offset `timezone`. `qiblacompass` takes `latitude, longitude`, then `year, month, day, timezone`, then the local clock time as `time_hour, time_minute`.
 
 ---
 
